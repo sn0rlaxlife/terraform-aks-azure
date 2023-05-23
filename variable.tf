@@ -1,0 +1,708 @@
+variable "prefix" {
+  type        = string
+  description = "(Required) The prefix for the resources created in the specified Azure Resource Group"
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "The resource group name to be imported"
+}
+
+variable "aci_connector_linux_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Virtual Node pool"
+}
+
+variable "aci_connector_linux_subnet_name" {
+  type        = string
+  default     = null
+  description = "(Optional) aci_connector_linux subnet name"
+}
+
+variable "admin_username" {
+  type        = string
+  default     = null
+  description = "The username of the local administrator to be created on the Kubernetes cluster. Set this variable to `null` to turn off the cluster's `linux_profile`. Changing this forces a new resource to be created."
+}
+
+variable "agents_availability_zones" {
+  type        = list(string)
+  default     = null
+  description = "(Optional) A list of Availability Zones across which the Node Pool should be spread. Changing this forces a new resource to be created."
+}
+
+variable "agents_count" {
+  type        = number
+  default     = 2
+  description = "The number of Agents that should exist in the Agent Pool. Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes."
+}
+
+variable "agents_labels" {
+  type        = map(string)
+  default     = {}
+  description = "(Optional) A map of Kubernetes labels which should be applied to nodes in the Default Node Pool. Changing this forces a new resource to be created."
+}
+
+variable "agents_max_count" {
+  type        = number
+  default     = null
+  description = "Maximum number of nodes in a pool"
+}
+
+variable "agents_max_pods" {
+  type        = number
+  default     = null
+  description = "(Optional) The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+}
+
+variable "agents_min_count" {
+  type        = number
+  default     = null
+  description = "Minimum number of nodes in a pool"
+}
+
+variable "agents_pool_kubelet_configs" {
+  type = list(object({
+    cpu_manager_policy        = optional(string)
+    cpu_cfs_quota_enabled     = optional(bool, true)
+    cpu_cfs_quota_period      = optional(string)
+    image_gc_high_threshold   = optional(number)
+    image_gc_low_threshold    = optional(number)
+    topology_manager_policy   = optional(string)
+    allowed_unsafe_sysctls    = optional(set(string))
+    container_log_max_size_mb = optional(number)
+    container_log_max_line    = optional(number)
+    pod_max_pid               = optional(number)
+  }))
+  default     = []
+  description = <<-EOT
+    list(object({
+      cpu_manager_policy        = (Optional) Specifies the CPU Manager policy to use. Possible values are `none` and `static`, Changing this forces a new resource to be created.
+      cpu_cfs_quota_enabled     = (Optional) Is CPU CFS quota enforcement for containers enabled? Changing this forces a new resource to be created.
+      cpu_cfs_quota_period      = (Optional) Specifies the CPU CFS quota period value. Changing this forces a new resource to be created.
+      image_gc_high_threshold   = (Optional) Specifies the percent of disk usage above which image garbage collection is always run. Must be between `0` and `100`. Changing this forces a new resource to be created.
+      image_gc_low_threshold    = (Optional) Specifies the percent of disk usage lower than which image garbage collection is never run. Must be between `0` and `100`. Changing this forces a new resource to be created.
+      topology_manager_policy   = (Optional) Specifies the Topology Manager policy to use. Possible values are `none`, `best-effort`, `restricted` or `single-numa-node`. Changing this forces a new resource to be created.
+      allowed_unsafe_sysctls    = (Optional) Specifies the allow list of unsafe sysctls command or patterns (ending in `*`). Changing this forces a new resource to be created.
+      container_log_max_size_mb = (Optional) Specifies the maximum size (e.g. 10MB) of container log file before it is rotated. Changing this forces a new resource to be created.
+      container_log_max_line    = (Optional) Specifies the maximum number of container log files that can be present for a container. must be at least 2. Changing this forces a new resource to be created.
+      pod_max_pid               = (Optional) Specifies the maximum number of processes per pod. Changing this forces a new resource to be created.
+  }))
+EOT
+  nullable    = false
+}
+
+variable "agents_pool_linux_os_configs" {
+  type = list(object({
+    sysctl_configs = optional(list(object({
+      fs_aio_max_nr                      = optional(number)
+      fs_file_max                        = optional(number)
+      fs_inotify_max_user_watches        = optional(number)
+      fs_nr_open                         = optional(number)
+      kernel_threads_max                 = optional(number)
+      net_core_netdev_max_backlog        = optional(number)
+      net_core_optmem_max                = optional(number)
+      net_core_rmem_default              = optional(number)
+      net_core_rmem_max                  = optional(number)
+      net_core_somaxconn                 = optional(number)
+      net_core_wmem_default              = optional(number)
+      net_core_wmem_max                  = optional(number)
+      net_ipv4_ip_local_port_range_min   = optional(number)
+      net_ipv4_ip_local_port_range_max   = optional(number)
+      net_ipv4_neigh_default_gc_thresh1  = optional(number)
+      net_ipv4_neigh_default_gc_thresh2  = optional(number)
+      net_ipv4_neigh_default_gc_thresh3  = optional(number)
+      net_ipv4_tcp_fin_timeout           = optional(number)
+      net_ipv4_tcp_keepalive_intvl       = optional(number)
+      net_ipv4_tcp_keepalive_probes      = optional(number)
+      net_ipv4_tcp_keepalive_time        = optional(number)
+      net_ipv4_tcp_max_syn_backlog       = optional(number)
+      net_ipv4_tcp_max_tw_buckets        = optional(number)
+      net_ipv4_tcp_tw_reuse              = optional(bool)
+      net_netfilter_nf_conntrack_buckets = optional(number)
+      net_netfilter_nf_conntrack_max     = optional(number)
+      vm_max_map_count                   = optional(number)
+      vm_swappiness                      = optional(number)
+      vm_vfs_cache_pressure              = optional(number)
+    })), [])
+    transparent_huge_page_enabled = optional(string)
+    transparent_huge_page_defrag  = optional(string)
+    swap_file_size_mb             = optional(number)
+  }))
+  default     = []
+  description = <<-EOT
+  list(object({
+    sysctl_configs = optional(list(object({
+      fs_aio_max_nr                      = (Optional) The sysctl setting fs.aio-max-nr. Must be between `65536` and `6553500`. Changing this forces a new resource to be created.
+      fs_file_max                        = (Optional) The sysctl setting fs.file-max. Must be between `8192` and `12000500`. Changing this forces a new resource to be created.
+      fs_inotify_max_user_watches        = (Optional) The sysctl setting fs.inotify.max_user_watches. Must be between `781250` and `2097152`. Changing this forces a new resource to be created.
+      fs_nr_open                         = (Optional) The sysctl setting fs.nr_open. Must be between `8192` and `20000500`. Changing this forces a new resource to be created.
+      kernel_threads_max                 = (Optional) The sysctl setting kernel.threads-max. Must be between `20` and `513785`. Changing this forces a new resource to be created.
+      net_core_netdev_max_backlog        = (Optional) The sysctl setting net.core.netdev_max_backlog. Must be between `1000` and `3240000`. Changing this forces a new resource to be created.
+      net_core_optmem_max                = (Optional) The sysctl setting net.core.optmem_max. Must be between `20480` and `4194304`. Changing this forces a new resource to be created.
+      net_core_rmem_default              = (Optional) The sysctl setting net.core.rmem_default. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+      net_core_rmem_max                  = (Optional) The sysctl setting net.core.rmem_max. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+      net_core_somaxconn                 = (Optional) The sysctl setting net.core.somaxconn. Must be between `4096` and `3240000`. Changing this forces a new resource to be created.
+      net_core_wmem_default              = (Optional) The sysctl setting net.core.wmem_default. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+      net_core_wmem_max                  = (Optional) The sysctl setting net.core.wmem_max. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+      net_ipv4_ip_local_port_range_min   = (Optional) The sysctl setting net.ipv4.ip_local_port_range max value. Must be between `1024` and `60999`. Changing this forces a new resource to be created.
+      net_ipv4_ip_local_port_range_max   = (Optional) The sysctl setting net.ipv4.ip_local_port_range min value. Must be between `1024` and `60999`. Changing this forces a new resource to be created.
+      net_ipv4_neigh_default_gc_thresh1  = (Optional) The sysctl setting net.ipv4.neigh.default.gc_thresh1. Must be between `128` and `80000`. Changing this forces a new resource to be created.
+      net_ipv4_neigh_default_gc_thresh2  = (Optional) The sysctl setting net.ipv4.neigh.default.gc_thresh2. Must be between `512` and `90000`. Changing this forces a new resource to be created.
+      net_ipv4_neigh_default_gc_thresh3  = (Optional) The sysctl setting net.ipv4.neigh.default.gc_thresh3. Must be between `1024` and `100000`. Changing this forces a new resource to be created.
+      net_ipv4_tcp_fin_timeout           = (Optional) The sysctl setting net.ipv4.tcp_fin_timeout. Must be between `5` and `120`. Changing this forces a new resource to be created.
+      net_ipv4_tcp_keepalive_intvl       = (Optional) The sysctl setting net.ipv4.tcp_keepalive_intvl. Must be between `10` and `75`. Changing this forces a new resource to be created.
+      net_ipv4_tcp_keepalive_probes      = (Optional) The sysctl setting net.ipv4.tcp_keepalive_probes. Must be between `1` and `15`. Changing this forces a new resource to be created.
+      net_ipv4_tcp_keepalive_time        = (Optional) The sysctl setting net.ipv4.tcp_keepalive_time. Must be between `30` and `432000`. Changing this forces a new resource to be created.
+      net_ipv4_tcp_max_syn_backlog       = (Optional) The sysctl setting net.ipv4.tcp_max_syn_backlog. Must be between `128` and `3240000`. Changing this forces a new resource to be created.
+      net_ipv4_tcp_max_tw_buckets        = (Optional) The sysctl setting net.ipv4.tcp_max_tw_buckets. Must be between `8000` and `1440000`. Changing this forces a new resource to be created.
+      net_ipv4_tcp_tw_reuse              = (Optional) The sysctl setting net.ipv4.tcp_tw_reuse. Changing this forces a new resource to be created.
+      net_netfilter_nf_conntrack_buckets = (Optional) The sysctl setting net.netfilter.nf_conntrack_buckets. Must be between `65536` and `147456`. Changing this forces a new resource to be created.
+      net_netfilter_nf_conntrack_max     = (Optional) The sysctl setting net.netfilter.nf_conntrack_max. Must be between `131072` and `1048576`. Changing this forces a new resource to be created.
+      vm_max_map_count                   = (Optional) The sysctl setting vm.max_map_count. Must be between `65530` and `262144`. Changing this forces a new resource to be created.
+      vm_swappiness                      = (Optional) The sysctl setting vm.swappiness. Must be between `0` and `100`. Changing this forces a new resource to be created.
+      vm_vfs_cache_pressure              = (Optional) The sysctl setting vm.vfs_cache_pressure. Must be between `0` and `100`. Changing this forces a new resource to be created.
+    })), [])
+    transparent_huge_page_enabled = (Optional) Specifies the Transparent Huge Page enabled configuration. Possible values are `always`, `madvise` and `never`. Changing this forces a new resource to be created.
+    transparent_huge_page_defrag  = (Optional) specifies the defrag configuration for Transparent Huge Page. Possible values are `always`, `defer`, `defer+madvise`, `madvise` and `never`. Changing this forces a new resource to be created.
+    swap_file_size_mb             = (Optional) Specifies the size of the swap file on each node in MB. Changing this forces a new resource to be created.
+  }))
+EOT
+  nullable    = false
+}
+
+variable "agents_pool_name" {
+  type        = string
+  default     = "nodepool"
+  description = "The default Azure AKS agentpool (nodepool) name."
+  nullable    = false
+}
+
+variable "agents_size" {
+  type        = string
+  default     = "Standard_D2s_v3"
+  description = "The default virtual machine size for the Kubernetes agents. Changing this without specifying `var.temporary_name_for_rotation` forces a new resource to be created."
+}
+
+variable "agents_tags" {
+  type        = map(string)
+  default     = {}
+  description = "(Optional) A mapping of tags to assign to the Node Pool."
+}
+
+variable "agents_type" {
+  type        = string
+  default     = "VirtualMachineScaleSets"
+  description = "(Optional) The type of Node Pool which should be created. Possible values are AvailabilitySet and VirtualMachineScaleSets. Defaults to VirtualMachineScaleSets."
+}
+
+variable "api_server_authorized_ip_ranges" {
+  type        = set(string)
+  default     = null
+  description = "(Optional) The IP ranges to allow for incoming traffic to the server nodes."
+}
+
+variable "automatic_channel_upgrade" {
+  type        = string
+  default     = null
+  description = "(Optional) The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, `node-image` and `stable`. By default automatic-upgrades are turned off. Note that you cannot specify the patch version using `kubernetes_version` or `orchestrator_version` when using the `patch` upgrade channel. See [the documentation](https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-cluster) for more information"
+
+  validation {
+    condition = var.automatic_channel_upgrade == null ? true : contains([
+      "patch", "stable", "rapid", "node-image"
+    ], var.automatic_channel_upgrade)
+    error_message = "`automatic_channel_upgrade`'s possible values are `patch`, `stable`, `rapid` or `node-image`."
+  }
+}
+
+variable "azure_policy_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Azure Policy Addon."
+}
+
+variable "client_id" {
+  type        = string
+  default     = ""
+  description = "(Optional) The Client ID (appId) for the Service Principal used for the AKS deployment"
+  nullable    = false
+}
+
+variable "client_secret" {
+  type        = string
+  default     = ""
+  description = "(Optional) The Client Secret (password) for the Service Principal used for the AKS deployment"
+  nullable    = false
+}
+
+variable "cluster_log_analytics_workspace_name" {
+  type        = string
+  default     = null
+  description = "(Optional) The name of the Analytics workspace"
+}
+
+variable "cluster_name" {
+  type        = string
+  default     = null
+  description = "(Optional) The name for the AKS resources created in the specified Azure Resource Group. This variable overwrites the 'prefix' var (The 'prefix' var will still be applied to the dns_prefix if it is set)"
+}
+
+variable "create_role_assignment_network_contributor" {
+  type        = bool
+  default     = false
+  description = "Create a role assignment for the AKS Service Principal to be a Network Contributor on the subnets used for the AKS Cluster"
+  nullable    = false
+}
+
+variable "disk_encryption_set_id" {
+  type        = string
+  default     = null
+  description = "(Optional) The ID of the Disk Encryption Set which should be used for the Nodes and Volumes. More information [can be found in the documentation](https://docs.microsoft.com/azure/aks/azure-disk-customer-managed-keys). Changing this forces a new resource to be created."
+}
+
+
+variable "enable_node_public_ip" {
+  type        = bool
+  default     = false
+  description = "(Optional) Should nodes in this Node Pool have a Public IP Address? Defaults to false."
+}
+
+variable "http_application_routing_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable HTTP Application Routing Addon (forces recreation)."
+}
+
+variable "identity_ids" {
+  type        = list(string)
+  default     = null
+  description = "(Optional) Specifies a list of User Assigned Managed Identity IDs to be assigned to this Kubernetes Cluster."
+}
+
+variable "identity_type" {
+  type        = string
+  default     = "SystemAssigned"
+  description = "(Optional) The type of identity used for the managed cluster. Conflicts with `client_id` and `client_secret`. Possible values are `SystemAssigned` and `UserAssigned`. If `UserAssigned` is set, an `identity_ids` must be set as well."
+
+  validation {
+    condition     = var.identity_type == "SystemAssigned" || var.identity_type == "UserAssigned"
+    error_message = "`identity_type`'s possible values are `SystemAssigned` and `UserAssigned`"
+  }
+}
+
+variable "ingress_application_gateway_enabled" {
+  type        = bool
+  default     = false
+  description = "Whether to deploy the Application Gateway ingress controller to this Kubernetes Cluster?"
+  nullable    = false
+}
+
+variable "ingress_application_gateway_id" {
+  type        = string
+  default     = null
+  description = "The ID of the Application Gateway to integrate with the ingress controller of this Kubernetes Cluster."
+}
+
+variable "ingress_application_gateway_name" {
+  type        = string
+  default     = null
+  description = "The name of the Application Gateway to be used or created in the Nodepool Resource Group, which in turn will be integrated with the ingress controller of this Kubernetes Cluster."
+}
+
+variable "ingress_application_gateway_subnet_cidr" {
+  type        = string
+  default     = null
+  description = "The subnet CIDR to be used to create an Application Gateway, which in turn will be integrated with the ingress controller of this Kubernetes Cluster."
+}
+
+variable "ingress_application_gateway_subnet_id" {
+  type        = string
+  default     = null
+  description = "The ID of the subnet on which to create an Application Gateway, which in turn will be integrated with the ingress controller of this Kubernetes Cluster."
+}
+
+
+variable "kubernetes_version" {
+  type        = string
+  default     = null
+  description = "Specify which Kubernetes release to use. The default used is the latest Kubernetes version available in the region"
+}
+
+variable "local_account_disabled" {
+  type        = bool
+  default     = null
+  description = "(Optional) - If `true` local accounts will be disabled. Defaults to `false`. See [the documentation](https://docs.microsoft.com/azure/aks/managed-aad#disable-local-accounts) for more information."
+}
+
+variable "location" {
+  type        = string
+  default     = null
+  description = "Location of cluster, if not defined it will be read from the resource-group"
+}
+
+
+
+variable "maintenance_window" {
+  type = object({
+    allowed = list(object({
+      day   = string
+      hours = set(number)
+    })),
+    not_allowed = list(object({
+      end   = string
+      start = string
+    })),
+  })
+  default     = null
+  description = "(Optional) Maintenance configuration of the managed cluster."
+}
+
+variable "microsoft_defender_enabled" {
+  type        = bool
+  default     = false
+  description = "(Optional) Is Microsoft Defender on the cluster enabled? Requires `var.log_analytics_workspace_enabled` to be `true` to set this variable to `true`."
+  nullable    = false
+}
+
+
+variable "network_plugin" {
+  type        = string
+  default     = "kubenet"
+  description = "Network plugin to use for networking."
+  nullable    = false
+}
+
+
+variable "node_pools" {
+  type = map(object({
+    name                          = string
+    node_count                    = optional(number)
+    tags                          = optional(map(string))
+    vm_size                       = string
+    host_group_id                 = optional(string)
+    capacity_reservation_group_id = optional(string)
+    custom_ca_trust_enabled       = optional(bool)
+    enable_auto_scaling           = optional(bool)
+    enable_host_encryption        = optional(bool)
+    enable_node_public_ip         = optional(bool)
+    eviction_policy               = optional(string)
+    kubelet_config = optional(object({
+      cpu_manager_policy        = optional(string)
+      cpu_cfs_quota_enabled     = optional(bool)
+      cpu_cfs_quota_period      = optional(string)
+      image_gc_high_threshold   = optional(number)
+      image_gc_low_threshold    = optional(number)
+      topology_manager_policy   = optional(string)
+      allowed_unsafe_sysctls    = optional(set(string))
+      container_log_max_size_mb = optional(number)
+      container_log_max_files   = optional(number)
+      pod_max_pid               = optional(number)
+    }))
+    linux_os_config = optional(object({
+      sysctl_config = optional(object({
+        fs_aio_max_nr                      = optional(number)
+        fs_file_max                        = optional(number)
+        fs_inotify_max_user_watches        = optional(number)
+        fs_nr_open                         = optional(number)
+        kernel_threads_max                 = optional(number)
+        net_core_netdev_max_backlog        = optional(number)
+        net_core_optmem_max                = optional(number)
+        net_core_rmem_default              = optional(number)
+        net_core_rmem_max                  = optional(number)
+        net_core_somaxconn                 = optional(number)
+        net_core_wmem_default              = optional(number)
+        net_core_wmem_max                  = optional(number)
+        net_ipv4_ip_local_port_range_min   = optional(number)
+        net_ipv4_ip_local_port_range_max   = optional(number)
+        net_ipv4_neigh_default_gc_thresh1  = optional(number)
+        net_ipv4_neigh_default_gc_thresh2  = optional(number)
+        net_ipv4_neigh_default_gc_thresh3  = optional(number)
+        net_ipv4_tcp_fin_timeout           = optional(number)
+        net_ipv4_tcp_keepalive_intvl       = optional(number)
+        net_ipv4_tcp_keepalive_probes      = optional(number)
+        net_ipv4_tcp_keepalive_time        = optional(number)
+        net_ipv4_tcp_max_syn_backlog       = optional(number)
+        net_ipv4_tcp_max_tw_buckets        = optional(number)
+        net_ipv4_tcp_tw_reuse              = optional(bool)
+        net_netfilter_nf_conntrack_buckets = optional(number)
+        net_netfilter_nf_conntrack_max     = optional(number)
+        vm_max_map_count                   = optional(number)
+        vm_swappiness                      = optional(number)
+        vm_vfs_cache_pressure              = optional(number)
+      }))
+      transparent_huge_page_enabled = optional(string)
+      transparent_huge_page_defrag  = optional(string)
+      swap_file_size_mb             = optional(number)
+    }))
+    fips_enabled       = optional(bool)
+    kubelet_disk_type  = optional(string)
+    max_count          = optional(number)
+    max_pods           = optional(number)
+    message_of_the_day = optional(string)
+    mode               = optional(string, "User")
+    min_count          = optional(number)
+    node_network_profile = optional(object({
+      node_public_ip_tags = optional(map(string))
+    }))
+    node_labels                  = optional(map(string))
+    node_public_ip_prefix_id     = optional(string)
+    node_taints                  = optional(list(string))
+    orchestrator_version         = optional(string)
+    os_disk_size_gb              = optional(number)
+    os_disk_type                 = optional(string, "Managed")
+    os_sku                       = optional(string)
+    os_type                      = optional(string, "Linux")
+    pod_subnet_id                = optional(string)
+    priority                     = optional(string, "Regular")
+    proximity_placement_group_id = optional(string)
+    spot_max_price               = optional(number)
+    scale_down_mode              = optional(string, "Delete")
+    ultra_ssd_enabled            = optional(bool)
+    vnet_subnet_id               = optional(string)
+    upgrade_settings = optional(object({
+      max_surge = number
+    }))
+    windows_profile = optional(object({
+      outbound_nat_enabled = optional(bool, true)
+    }))
+    workload_runtime = optional(string)
+    zones            = optional(set(string))
+  }))
+  default     = {}
+  description = <<-EOT
+  A map of node pools that about to be created and attached on the Kubernetes cluster. The key of the map can be the name of the node pool, and the key must be static string. The value of the map is a `node_pool` block as defined below:
+  map(object({
+    name                          = (Required) The name of the Node Pool which should be created within the Kubernetes Cluster. Changing this forces a new resource to be created. A Windows Node Pool cannot have a `name` longer than 6 characters. A random suffix of 4 characters is always added to the name to avoid clashes during recreates.
+    node_count                    = (Optional) The initial number of nodes which should exist within this Node Pool. Valid values are between `0` and `1000` (inclusive) for user pools and between `1` and `1000` (inclusive) for system pools and must be a value in the range `min_count` - `max_count`.
+    tags                          = (Optional) A mapping of tags to assign to the resource. At this time there's a bug in the AKS API where Tags for a Node Pool are not stored in the correct case - you [may wish to use Terraform's `ignore_changes` functionality to ignore changes to the casing](https://www.terraform.io/language/meta-arguments/lifecycle#ignore_changess) until this is fixed in the AKS API.
+    vm_size                       = (Required) The SKU which should be used for the Virtual Machines used in this Node Pool. Changing this forces a new resource to be created.
+    host_group_id                 = (Optional) The fully qualified resource ID of the Dedicated Host Group to provision virtual machines from. Changing this forces a new resource to be created.
+    capacity_reservation_group_id = (Optional) Specifies the ID of the Capacity Reservation Group where this Node Pool should exist. Changing this forces a new resource to be created.
+    custom_ca_trust_enabled       = (Optional) Specifies whether to trust a Custom CA. This requires that the Preview Feature `Microsoft.ContainerService/CustomCATrustPreview` is enabled and the Resource Provider is re-registered, see [the documentation](https://learn.microsoft.com/en-us/azure/aks/custom-certificate-authority) for more information.
+    enable_auto_scaling           = (Optional) Whether to enable [auto-scaler](https://docs.microsoft.com/azure/aks/cluster-autoscaler).
+    enable_host_encryption        = (Optional) Should the nodes in this Node Pool have host encryption enabled? Changing this forces a new resource to be created.
+    enable_node_public_ip         = (Optional) Should each node have a Public IP Address? Changing this forces a new resource to be created.
+    eviction_policy               = (Optional) The Eviction Policy which should be used for Virtual Machines within the Virtual Machine Scale Set powering this Node Pool. Possible values are `Deallocate` and `Delete`. Changing this forces a new resource to be created. An Eviction Policy can only be configured when `priority` is set to `Spot` and will default to `Delete` unless otherwise specified.
+    kubelet_config = optional(object({
+      cpu_manager_policy        = (Optional) Specifies the CPU Manager policy to use. Possible values are `none` and `static`, Changing this forces a new resource to be created.
+      cpu_cfs_quota_enabled     = (Optional) Is CPU CFS quota enforcement for containers enabled? Changing this forces a new resource to be created.
+      cpu_cfs_quota_period      = (Optional) Specifies the CPU CFS quota period value. Changing this forces a new resource to be created.
+      image_gc_high_threshold   = (Optional) Specifies the percent of disk usage above which image garbage collection is always run. Must be between `0` and `100`. Changing this forces a new resource to be created.
+      image_gc_low_threshold    = (Optional) Specifies the percent of disk usage lower than which image garbage collection is never run. Must be between `0` and `100`. Changing this forces a new resource to be created.
+      topology_manager_policy   = (Optional) Specifies the Topology Manager policy to use. Possible values are `none`, `best-effort`, `restricted` or `single-numa-node`. Changing this forces a new resource to be created.
+      allowed_unsafe_sysctls    = (Optional) Specifies the allow list of unsafe sysctls command or patterns (ending in `*`). Changing this forces a new resource to be created.
+      container_log_max_size_mb = (Optional) Specifies the maximum size (e.g. 10MB) of container log file before it is rotated. Changing this forces a new resource to be created.
+      container_log_max_files   = (Optional) Specifies the maximum number of container log files that can be present for a container. must be at least 2. Changing this forces a new resource to be created.
+      pod_max_pid               = (Optional) Specifies the maximum number of processes per pod. Changing this forces a new resource to be created.
+    }))
+    linux_os_config = optional(object({
+      sysctl_config = optional(object({
+        fs_aio_max_nr                      = (Optional) The sysctl setting fs.aio-max-nr. Must be between `65536` and `6553500`. Changing this forces a new resource to be created.
+        fs_file_max                        = (Optional) The sysctl setting fs.file-max. Must be between `8192` and `12000500`. Changing this forces a new resource to be created.
+        fs_inotify_max_user_watches        = (Optional) The sysctl setting fs.inotify.max_user_watches. Must be between `781250` and `2097152`. Changing this forces a new resource to be created.
+        fs_nr_open                         = (Optional) The sysctl setting fs.nr_open. Must be between `8192` and `20000500`. Changing this forces a new resource to be created.
+        kernel_threads_max                 = (Optional) The sysctl setting kernel.threads-max. Must be between `20` and `513785`. Changing this forces a new resource to be created.
+        net_core_netdev_max_backlog        = (Optional) The sysctl setting net.core.netdev_max_backlog. Must be between `1000` and `3240000`. Changing this forces a new resource to be created.
+        net_core_optmem_max                = (Optional) The sysctl setting net.core.optmem_max. Must be between `20480` and `4194304`. Changing this forces a new resource to be created.
+        net_core_rmem_default              = (Optional) The sysctl setting net.core.rmem_default. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+        net_core_rmem_max                  = (Optional) The sysctl setting net.core.rmem_max. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+        net_core_somaxconn                 = (Optional) The sysctl setting net.core.somaxconn. Must be between `4096` and `3240000`. Changing this forces a new resource to be created.
+        net_core_wmem_default              = (Optional) The sysctl setting net.core.wmem_default. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+        net_core_wmem_max                  = (Optional) The sysctl setting net.core.wmem_max. Must be between `212992` and `134217728`. Changing this forces a new resource to be created.
+        net_ipv4_ip_local_port_range_min   = (Optional) The sysctl setting net.ipv4.ip_local_port_range min value. Must be between `1024` and `60999`. Changing this forces a new resource to be created.
+        net_ipv4_ip_local_port_range_max   = (Optional) The sysctl setting net.ipv4.ip_local_port_range max value. Must be between `1024` and `60999`. Changing this forces a new resource to be created.
+        net_ipv4_neigh_default_gc_thresh1  = (Optional) The sysctl setting net.ipv4.neigh.default.gc_thresh1. Must be between `128` and `80000`. Changing this forces a new resource to be created.
+        net_ipv4_neigh_default_gc_thresh2  = (Optional) The sysctl setting net.ipv4.neigh.default.gc_thresh2. Must be between `512` and `90000`. Changing this forces a new resource to be created.
+        net_ipv4_neigh_default_gc_thresh3  = (Optional) The sysctl setting net.ipv4.neigh.default.gc_thresh3. Must be between `1024` and `100000`. Changing this forces a new resource to be created.
+        net_ipv4_tcp_fin_timeout           = (Optional) The sysctl setting net.ipv4.tcp_fin_timeout. Must be between `5` and `120`. Changing this forces a new resource to be created.
+        net_ipv4_tcp_keepalive_intvl       = (Optional) The sysctl setting net.ipv4.tcp_keepalive_intvl. Must be between `10` and `75`. Changing this forces a new resource to be created.
+        net_ipv4_tcp_keepalive_probes      = (Optional) The sysctl setting net.ipv4.tcp_keepalive_probes. Must be between `1` and `15`. Changing this forces a new resource to be created.
+        net_ipv4_tcp_keepalive_time        = (Optional) The sysctl setting net.ipv4.tcp_keepalive_time. Must be between `30` and `432000`. Changing this forces a new resource to be created.
+        net_ipv4_tcp_max_syn_backlog       = (Optional) The sysctl setting net.ipv4.tcp_max_syn_backlog. Must be between `128` and `3240000`. Changing this forces a new resource to be created.
+        net_ipv4_tcp_max_tw_buckets        = (Optional) The sysctl setting net.ipv4.tcp_max_tw_buckets. Must be between `8000` and `1440000`. Changing this forces a new resource to be created.
+        net_ipv4_tcp_tw_reuse              = (Optional) Is sysctl setting net.ipv4.tcp_tw_reuse enabled? Changing this forces a new resource to be created.
+        net_netfilter_nf_conntrack_buckets = (Optional) The sysctl setting net.netfilter.nf_conntrack_buckets. Must be between `65536` and `147456`. Changing this forces a new resource to be created.
+        net_netfilter_nf_conntrack_max     = (Optional) The sysctl setting net.netfilter.nf_conntrack_max. Must be between `131072` and `1048576`. Changing this forces a new resource to be created.
+        vm_max_map_count                   = (Optional) The sysctl setting vm.max_map_count. Must be between `65530` and `262144`. Changing this forces a new resource to be created.
+        vm_swappiness                      = (Optional) The sysctl setting vm.swappiness. Must be between `0` and `100`. Changing this forces a new resource to be created.
+        vm_vfs_cache_pressure              = (Optional) The sysctl setting vm.vfs_cache_pressure. Must be between `0` and `100`. Changing this forces a new resource to be created.
+      }))
+      transparent_huge_page_enabled = (Optional) Specifies the Transparent Huge Page enabled configuration. Possible values are `always`, `madvise` and `never`. Changing this forces a new resource to be created.
+      transparent_huge_page_defrag  = (Optional) specifies the defrag configuration for Transparent Huge Page. Possible values are `always`, `defer`, `defer+madvise`, `madvise` and `never`. Changing this forces a new resource to be created.
+      swap_file_size_mb             = (Optional) Specifies the size of swap file on each node in MB. Changing this forces a new resource to be created.
+    }))
+    fips_enabled       = (Optional) Should the nodes in this Node Pool have Federal Information Processing Standard enabled? Changing this forces a new resource to be created. FIPS support is in Public Preview - more information and details on how to opt into the Preview can be found in [this article](https://docs.microsoft.com/azure/aks/use-multiple-node-pools#add-a-fips-enabled-node-pool-preview).
+    kubelet_disk_type  = (Optional) The type of disk used by kubelet. Possible values are `OS` and `Temporary`.
+    max_count          = (Optional) The maximum number of nodes which should exist within this Node Pool. Valid values are between `0` and `1000` and must be greater than or equal to `min_count`.
+    max_pods           = (Optional) The minimum number of nodes which should exist within this Node Pool. Valid values are between `0` and `1000` and must be less than or equal to `max_count`.
+    message_of_the_day = (Optional) A base64-encoded string which will be written to /etc/motd after decoding. This allows customization of the message of the day for Linux nodes. It cannot be specified for Windows nodes and must be a static string (i.e. will be printed raw and not executed as a script). Changing this forces a new resource to be created.
+    mode               = (Optional) Should this Node Pool be used for System or User resources? Possible values are `System` and `User`. Defaults to `User`.
+    min_count          = (Optional) The minimum number of nodes which should exist within this Node Pool. Valid values are between `0` and `1000` and must be less than or equal to `max_count`.
+    node_network_profile = optional(object({
+      node_public_ip_tags = (Optional) Specifies a mapping of tags to the instance-level public IPs. Changing this forces a new resource to be created.
+    }))
+    node_labels                  = (Optional) A map of Kubernetes labels which should be applied to nodes in this Node Pool.
+    node_public_ip_prefix_id     = (Optional) Resource ID for the Public IP Addresses Prefix for the nodes in this Node Pool. `enable_node_public_ip` should be `true`. Changing this forces a new resource to be created.
+    node_taints                  = (Optional) A list of Kubernetes taints which should be applied to nodes in the agent pool (e.g `key=value:NoSchedule`). Changing this forces a new resource to be created.
+    orchestrator_version         = (Optional) Version of Kubernetes used for the Agents. If not specified, the latest recommended version will be used at provisioning time (but won't auto-upgrade). AKS does not require an exact patch version to be specified, minor version aliases such as `1.22` are also supported. - The minor version's latest GA patch is automatically chosen in that case. More details can be found in [the documentation](https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli#alias-minor-version). This version must be supported by the Kubernetes Cluster - as such the version of Kubernetes used on the Cluster/Control Plane may need to be upgraded first.
+    os_disk_size_gb              = (Optional) The Agent Operating System disk size in GB. Changing this forces a new resource to be created.
+    os_disk_type                 = (Optional) The type of disk which should be used for the Operating System. Possible values are `Ephemeral` and `Managed`. Defaults to `Managed`. Changing this forces a new resource to be created.
+    os_sku                       = (Optional) Specifies the OS SKU used by the agent pool. Possible values include: `Ubuntu`, `CBLMariner`, `Mariner`, `Windows2019`, `Windows2022`. If not specified, the default is `Ubuntu` if OSType=Linux or `Windows2019` if OSType=Windows. And the default Windows OSSKU will be changed to `Windows2022` after Windows2019 is deprecated. Changing this forces a new resource to be created.
+    os_type                      = (Optional) The Operating System which should be used for this Node Pool. Changing this forces a new resource to be created. Possible values are `Linux` and `Windows`. Defaults to `Linux`.
+    pod_subnet_id                = (Optional) The ID of the Subnet where the pods in the Node Pool should exist. Changing this forces a new resource to be created.
+    priority                     = (Optional) The Priority for Virtual Machines within the Virtual Machine Scale Set that powers this Node Pool. Possible values are `Regular` and `Spot`. Defaults to `Regular`. Changing this forces a new resource to be created.
+    proximity_placement_group_id = (Optional) The ID of the Proximity Placement Group where the Virtual Machine Scale Set that powers this Node Pool will be placed. Changing this forces a new resource to be created. When setting `priority` to Spot - you must configure an `eviction_policy`, `spot_max_price` and add the applicable `node_labels` and `node_taints` [as per the Azure Documentation](https://docs.microsoft.com/azure/aks/spot-node-pool).
+    spot_max_price               = (Optional) The maximum price you're willing to pay in USD per Virtual Machine. Valid values are `-1` (the current on-demand price for a Virtual Machine) or a positive value with up to five decimal places. Changing this forces a new resource to be created. This field can only be configured when `priority` is set to `Spot`.
+    scale_down_mode              = (Optional) Specifies how the node pool should deal with scaled-down nodes. Allowed values are `Delete` and `Deallocate`. Defaults to `Delete`.
+    ultra_ssd_enabled            = (Optional) Used to specify whether the UltraSSD is enabled in the Node Pool. Defaults to `false`. See [the documentation](https://docs.microsoft.com/azure/aks/use-ultra-disks) for more information. Changing this forces a new resource to be created.
+    vnet_subnet_id               = (Optional) The ID of the Subnet where this Node Pool should exist. Changing this forces a new resource to be created. A route table must be configured on this Subnet.
+    upgrade_settings = optional(object({
+      max_surge = number
+    }))
+    windows_profile = optional(object({
+      outbound_nat_enabled = optional(bool, true)
+    }))
+    workload_runtime = (Optional) Used to specify the workload runtime. Allowed values are `OCIContainer` and `WasmWasi`. WebAssembly System Interface node pools are in Public Preview - more information and details on how to opt into the preview can be found in [this article](https://docs.microsoft.com/azure/aks/use-wasi-node-pools)
+    zones            = (Optional) Specifies a list of Availability Zones in which this Kubernetes Cluster Node Pool should be located. Changing this forces a new Kubernetes Cluster Node Pool to be created.
+  }))
+  EOT
+  nullable    = false
+}
+
+variable "node_resource_group" {
+  type        = string
+  default     = null
+  description = "The auto-generated Resource Group which contains the resources for this Managed Kubernetes Cluster. Changing this forces a new resource to be created."
+}
+
+variable "oidc_issuer_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable or Disable the OIDC issuer URL. Defaults to false."
+}
+
+variable "only_critical_addons_enabled" {
+  type        = bool
+  default     = null
+  description = "(Optional) Enabling this option will taint default node pool with `CriticalAddonsOnly=true:NoSchedule` taint. Changing this forces a new resource to be created."
+}
+
+variable "open_service_mesh_enabled" {
+  type        = bool
+  default     = null
+  description = "Is Open Service Mesh enabled? For more details, please visit [Open Service Mesh for AKS](https://docs.microsoft.com/azure/aks/open-service-mesh-about)."
+}
+
+variable "orchestrator_version" {
+  type        = string
+  default     = null
+  description = "Specify which Kubernetes release to use for the orchestration layer. The default used is the latest Kubernetes version available in the region"
+}
+
+variable "os_disk_size_gb" {
+  type        = number
+  default     = 50
+  description = "Disk size of nodes in GBs."
+}
+
+variable "os_disk_type" {
+  type        = string
+  default     = "Managed"
+  description = "The type of disk which should be used for the Operating System. Possible values are `Ephemeral` and `Managed`. Defaults to `Managed`. Changing this forces a new resource to be created."
+  nullable    = false
+}
+
+variable "os_sku" {
+  type        = string
+  default     = null
+  description = "(Optional) Specifies the OS SKU used by the agent pool. Possible values include: `Ubuntu`, `CBLMariner`, `Mariner`, `Windows2019`, `Windows2022`. If not specified, the default is `Ubuntu` if OSType=Linux or `Windows2019` if OSType=Windows. And the default Windows OSSKU will be changed to `Windows2022` after Windows2019 is deprecated. Changing this forces a new resource to be created."
+}
+
+variable "pod_subnet_id" {
+  type        = string
+  default     = null
+  description = "(Optional) The ID of the Subnet where the pods in the default Node Pool should exist. Changing this forces a new resource to be created."
+}
+
+variable "private_cluster_enabled" {
+  type        = bool
+  default     = false
+  description = "If true cluster API server will be exposed only on internal IP address and available only in cluster vnet."
+}
+
+variable "private_cluster_public_fqdn_enabled" {
+  type        = bool
+  default     = false
+  description = "(Optional) Specifies whether a Public FQDN for this Private Cluster should be added. Defaults to `false`."
+}
+
+variable "private_dns_zone_id" {
+  type        = string
+  default     = null
+  description = "(Optional) Either the ID of Private DNS Zone which should be delegated to this Cluster, `System` to have AKS manage this or `None`. In case of `None` you will need to bring your own DNS server and set up resolving, otherwise cluster will have issues after provisioning. Changing this forces a new resource to be created."
+}
+
+variable "public_network_access_enabled" {
+  type        = bool
+  default     = true
+  description = "(Optional) Whether public network access is allowed for this Kubernetes Cluster. Defaults to `true`. Changing this forces a new resource to be created."
+  nullable    = false
+}
+
+variable "public_ssh_key" {
+  type        = string
+  default     = ""
+  description = "A custom ssh key to control access to the AKS cluster. Changing this forces a new resource to be created."
+}
+
+variable "rbac_aad" {
+  type        = bool
+  default     = true
+  description = "(Optional) Is Azure Active Directory integration enabled?"
+  nullable    = false
+}
+
+variable "role_based_access_control_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Role Based Access Control."
+  nullable    = false
+}
+
+
+variable "sku_tier" {
+  type        = string
+  default     = "Free"
+  description = "The SKU Tier that should be used for this Kubernetes Cluster. Possible values are `Free` and `Standard`"
+
+  validation {
+    condition     = contains(["Free", "Standard"], var.sku_tier)
+    error_message = "The SKU Tier must be either `Free` or `Standard`. `Paid` is no longer supported since AzureRM provider v3.51.0."
+  }
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Any tags that should be present on the AKS cluster resources"
+}
+
+
+variable "web_app_routing" {
+  type = object({
+    dns_zone_id = string
+  })
+  default     = null
+  description = <<-EOT
+  object({
+    dns_zone_id = "(Required) Specifies the ID of the DNS Zone in which DNS entries are created for applications deployed to the cluster when Web App Routing is enabled."
+  })
+EOT
+}
+
+variable "workload_identity_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable or Disable Workload Identity. Defaults to false."
+}
