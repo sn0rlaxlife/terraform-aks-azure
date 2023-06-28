@@ -44,23 +44,21 @@ resource "azurerm_resource_group" "aks" {
   location = "West US"
 }
 
-resource "azurerm_virtual_network" "aks" {
-  name                = "vnet-aks"
+module "network" {
+  source              = "Azure/network/azurerm"
   resource_group_name = azurerm_resource_group.aks.name
-  location            = azurerm_resource_group.aks.location
-  address_space       = ["10.52.0.0/16"]
-}
+  address_spaces      = ["10.0.0.0/16", "10.2.0.0/16"]
+  subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  subnet_names        = ["subnet1", "subnet2", "subnet3"]
+  subnet_service_endpoints = {
+    subnet1 = ["Microsoft.KeyVault", "Microsoft.Sql"]
+    subnet2 = ["Microsoft.Storage"]
+    subnet3 = ["Microsoft.Sql"]
+  }
+  use_for_each = true
+  tags = {
+    environment = "dev"
+  }
 
-resource "azurerm_subnet" "prod" {
-  name                     = "subnet-prod"
-  virtual_network_name     = azurerm_virtual_network.aks.name
-  resource_group_name      = azurerm_resource_group.aks.name
-  address_prefixes         = ["10.52.1.0/24"]
-}
-
-resource "azurerm_subnet" "db" {
-  name                     = "db-network"
-  virtual_network_name     = azurerm_virtual_network.aks.name
-  resource_group_name      = azurerm_resource_group.aks.name
-  address_prefixes         = ["10.52.2.0/24"]
+  depends_on = [azurerm_resource_group.aks]
 }
