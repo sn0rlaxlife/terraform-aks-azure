@@ -1,3 +1,9 @@
+variable "resource_group_name" {
+  type        = string
+  description = "The name of the resource group in which to create the AKS cluster"
+  default     = "aks-test-rg"
+}
+
 variable "region" {
   type    = string
   default = "eastus"
@@ -60,7 +66,7 @@ variable "public_ssh_key" {
 
 variable "rbac_aad" {
   type        = bool
-  default     = true
+  default     = false
   description = "(Optional) Is Azure Active Directory integration enabled?"
   nullable    = false
 }
@@ -88,4 +94,22 @@ variable "tags" {
   type        = map(string)
   default     = {}
   description = "Any tags that should be present on the AKS cluster resources"
+}
+
+variable "vnet" {
+  type        = string
+  default     = "west-us"
+  description = "vnet-name"
+}
+
+variable "locations-one" {
+  type        = string
+  default     = "westus"
+  description = "location-one - first network location"
+}
+
+variable "virtual_network" {
+  type        = string
+  default     = "vnet-aks"
+  description = "virtual network name"
 }
