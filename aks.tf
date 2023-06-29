@@ -17,7 +17,7 @@ module "aks" {
   enable_auto_scaling               = true
   enable_host_encryption            = true
   log_analytics_workspace_enabled   = false
-  vnet_subnet_id                    = module.vnet.vnet_subnets[0]
+  vnet_subnet_id                    = module.network.vnet_subnets[0]
   agents_min_count                  = 1
   agents_max_count                  = 3
   agents_count                      = null # Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes.

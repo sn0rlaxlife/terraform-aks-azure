@@ -43,18 +43,22 @@ resource "azurerm_resource_group" "aks" {
   location = "West US"
   }
 
-module "vnet" {
-  source              = "Azure/vnet/azurerm"
-  version             = "4.1.0"
-  vnet_location       = azurerm_resource_group.aks.location
+module "network" {
+  source              = "Azure/network/azurerm"
   resource_group_name = azurerm_resource_group.aks.name
-  address_space       = ["10.0.0.0/16", "10.2.0.0/16"]
-  subnet_prefixes     = ["10.52.0.0/24", "10.52.1.0/24", "10.52.2.0/24"]
+  address_spaces      = ["10.0.0.0/16", "10.2.0.0/16"]
+  subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   subnet_names        = ["subnet1", "subnet2", "subnet3"]
-  vnet_name           = "aks-vnet"
-  use_for_each        = true
+
+  subnet_service_endpoints = {
+    "subnet1" : ["Microsoft.Sql"],
+    "subnet2" : ["Microsoft.Sql"],
+    "subnet3" : ["Microsoft.Sql"]
+  }
+  use_for_each = true
   tags = {
     environment = "dev"
+    costcenter  = "it"
   }
 
   depends_on = [azurerm_resource_group.aks]

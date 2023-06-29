@@ -4,12 +4,6 @@ variable "resource_group_name" {
   default     = "aks-test-rg"
 }
 
-variable "subnet_names" {
-  type     = list(string)
-  default  = ["subnet1", "subnet2", "subnet3"]
-  description = "The name of the subnet in which to create the AKS cluster"
-}
-
 variable "region" {
   type    = string
   default = "eastus"
@@ -102,15 +96,45 @@ variable "tags" {
   description = "Any tags that should be present on the AKS cluster resources"
 }
 
-
-variable "locations-one" {
-  type        = string
-  default     = "westus"
-  description = "location-one - first network location"
-}
-
 variable "virtual_network" {
   type        = string
   default     = "vnet-aks"
   description = "virtual network name"
+}
+
+variable "subnet_delegation" {
+  type = map(list(object({
+    name = string
+    service_delegation = object({
+      name    = string
+      actions = optional(list(string))
+    })
+  })))
+  default     = {}
+  description = "`service_delegation` blocks for `azurerm_subnet` resource, subnet names as keys, list of delegation blocks as value, more details about delegation block could be found at the [document](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet#delegation)."
+  nullable    = false
+}
+
+variable "subnet_enforce_private_link_endpoint_network_policies" {
+  type        = map(bool)
+  default     = {}
+  description = "A map with key (string) `subnet name`, value (bool) `true` or `false` to indicate enable or disable network policies for the private link endpoint on the subnet. Default value is false."
+}
+
+variable "subnet_names" {
+  type        = list(string)
+  default     = ["subnet1"]
+  description = "A list of public subnets inside the vNet."
+}
+
+variable "subnet_prefixes" {
+  type        = list(string)
+  default     = ["10.0.1.0/24"]
+  description = "The address prefix to use for the subnet."
+}
+
+variable "subnet_service_endpoints" {
+  type        = map(list(string))
+  default     = {}
+  description = "A map with key (string) `subnet name`, value (list(string)) to indicate enabled service endpoints on the subnet. Default value is []."
 }
