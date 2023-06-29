@@ -104,7 +104,7 @@ variable "aks_virtual_network" {
 
 variable "aks_vnet_address_space" {
   description = "Specifies the address prefix of the AKS subnet"
-  default     =  ["10.0.0.0/16"]
+  default     = ["10.0.0.0/16"]
   type        = list(string)
 }
 
@@ -141,13 +141,13 @@ variable "subnet_prefixes" {
 
 variable "default_node_pool_subnet_name" {
   description = "Specifies the name of the subnet that hosts the default node pool"
-  default     =  "SystemSubnet"
+  default     = "SystemSubnet"
   type        = string
 }
 
 variable "default_node_pool_subnet_address_prefix" {
   description = "Specifies the address prefix of the subnet that hosts the default node pool"
-  default     =  ["10.0.0.0/20"]
+  default     = ["10.0.0.0/20"]
   type        = list(string)
 }
 
@@ -156,3 +156,22 @@ variable "subnet_service_endpoints" {
   default     = {}
   description = "A map with key (string) `subnet name`, value (list(string)) to indicate enabled service endpoints on the subnet. Default value is []."
 }
+
+variable "use_for_each" {
+  type    = bool
+  default = true
+}
+
+variable "api_server_authorized_ip_ranges" {
+  type        = set(string)
+  default     = null
+  description = "(Optional) The IP ranges to allow for incoming traffic to the server nodes."
+}
+
+variable "api_server_subnet_id" {
+  type        = string
+  default     = null
+  description = "(Optional) The ID of the Subnet where the API server endpoint is delegated to."
+}
+
+
