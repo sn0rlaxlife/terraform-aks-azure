@@ -51,8 +51,8 @@ module "vnet" {
   address_space       = ["10.0.0.0/16", "10.2.0.0/16"]
   subnet_prefixes     = ["10.52.0.0/24", "10.52.1.0/24", "10.52.2.0/24"]
   subnet_names        = ["subnet1", "subnet2", "subnet3"]
-
-  use_for_each = true
+  vnet_name           = "aks-vnet"
+  use_for_each        = true
   tags = {
     environment = "dev"
   }
