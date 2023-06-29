@@ -96,10 +96,16 @@ variable "tags" {
   description = "Any tags that should be present on the AKS cluster resources"
 }
 
-variable "virtual_network" {
+variable "aks_virtual_network" {
   type        = string
   default     = "vnet-aks"
   description = "virtual network name"
+}
+
+variable "aks_vnet_address_space" {
+  description = "Specifies the address prefix of the AKS subnet"
+  default     =  ["10.0.0.0/16"]
+  type        = list(string)
 }
 
 variable "subnet_delegation" {
