@@ -1,23 +1,23 @@
 //aks file
 
-
 module "aks" {
   source                            = "Azure/aks/azurerm"
-  version                           = "7.0.0"
-  prefix                            = "aks-on-azure"
+  version                           = "7.1.0"
   resource_group_name               = azurerm_resource_group.aks.name
+  kubernetes_version                = var.kubernetes_version
+  orchestrator_version              = var.kubernetes_version
+  prefix                            = "aks-kiosk"
   network_plugin                    = "azure"
+  vnet_subnet_id                    = lookup(module.aks-vnet.vnet_subnets_name_id, "subnet0")
   os_disk_size_gb                   = 50
   sku_tier                          = "Standard" # defaults to Free
-  public_network_access_enabled     = false
   private_cluster_enabled           = false
   rbac_aad                          = var.rbac_aad
   role_based_access_control_enabled = var.role_based_access_control_enabled
   http_application_routing_enabled  = false
   enable_auto_scaling               = true
-  enable_host_encryption            = true
+  enable_host_encryption            = false
   log_analytics_workspace_enabled   = false
-  vnet_subnet_id                    = module.network.vnet_subnets[0]
   agents_min_count                  = 1
   agents_max_count                  = 3
   agents_count                      = null # Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes.
@@ -26,11 +26,7 @@ module "aks" {
   agents_availability_zones         = ["1", "2"]
   agents_type                       = "VirtualMachineScaleSets"
   agents_size                       = var.agents_size
-
-  ## api_server_authorized_ip_ranges = {
-  ##   type                 = string
-  ##   authorized_ip_ranges = "0.0.0.0/32"
-  ## }
+  
 
 
   agents_labels = {
@@ -51,5 +47,5 @@ module "aks" {
   secret_rotation_enabled            = true
   secret_rotation_interval           = "3m"
 
-  depends_on = [resource.azurerm_resource_group.aks]
+  depends_on = [module.aks-vnet]
 }
