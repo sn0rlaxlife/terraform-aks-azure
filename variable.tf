@@ -133,6 +133,12 @@ variable "subnet_prefixes" {
   description = "The address prefix to use for the subnet."
 }
 
+variable "default_node_pool_subnet_name" {
+  description = "Specifies the name of the subnet that hosts the default node pool"
+  default     =  "SystemSubnet"
+  type        = string
+}
+
 variable "subnet_service_endpoints" {
   type        = map(list(string))
   default     = {}
