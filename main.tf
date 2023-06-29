@@ -47,7 +47,7 @@ module "network" {
   source              = "Azure/network/azurerm"
   resource_group_name = azurerm_resource_group.aks.name
   address_spaces      = ["10.0.0.0/16", "10.2.0.0/16"]
-  vnet_name           = "aks-west"
+  vnet_name           = var.aks_virtual_network
   address_space       = var.aks_vnet_address_space
 
  subnets = [
