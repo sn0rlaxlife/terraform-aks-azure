@@ -4,6 +4,12 @@ variable "resource_group_name" {
   default     = "aks-test-rg"
 }
 
+variable "subnet_names" {
+  type     = list(string)
+  default  = ["subnet1", "subnet2", "subnet3"]
+  description = "The name of the subnet in which to create the AKS cluster"
+}
+
 variable "region" {
   type    = string
   default = "eastus"
@@ -96,11 +102,6 @@ variable "tags" {
   description = "Any tags that should be present on the AKS cluster resources"
 }
 
-variable "vnet" {
-  type        = string
-  default     = "west-us"
-  description = "vnet-name"
-}
 
 variable "locations-one" {
   type        = string

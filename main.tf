@@ -38,16 +38,17 @@ provider "helm" {
   }
 }
 
-# Resource Group
 resource "azurerm_resource_group" "aks" {
   name     = "aks-rg"
   location = "West US"
-}
+  }
 
-module "network" {
-  source              = "Azure/network/azurerm"
+module "vnet" {
+  source              = "Azure/vnet/azurerm"
+  version             = "4.1.0"
+  vnet_location       = azurerm_resource_group.aks.location
   resource_group_name = azurerm_resource_group.aks.name
-  address_spaces      = ["10.0.0.0/16", "10.2.0.0/16"]
+  address_space       = ["10.0.0.0/16", "10.2.0.0/16"]
   subnet_prefixes     = ["10.52.0.0/24", "10.52.1.0/24", "10.52.2.0/24"]
   subnet_names        = ["subnet1", "subnet2", "subnet3"]
 

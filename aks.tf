@@ -10,14 +10,14 @@ module "aks" {
   os_disk_size_gb                   = 50
   sku_tier                          = "Standard" # defaults to Free
   public_network_access_enabled     = false
-  private_cluster_enabled           = true
+  private_cluster_enabled           = false
   rbac_aad                          = var.rbac_aad
   role_based_access_control_enabled = var.role_based_access_control_enabled
   http_application_routing_enabled  = false
   enable_auto_scaling               = true
   enable_host_encryption            = true
   log_analytics_workspace_enabled   = false
-  vnet_subnet_id                    = module.network.vnet_subnets[0]
+  vnet_subnet_id                    = module.vnet.vnet_subnets[0]
   agents_min_count                  = 1
   agents_max_count                  = 3
   agents_count                      = null # Please set `agents_count` `null` while `enable_auto_scaling` is `true` to avoid possible `agents_count` changes.
