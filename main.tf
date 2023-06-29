@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.57.0"
+      version = ">= 3.0, < 4.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
@@ -21,47 +21,46 @@ provider "azurerm" {
 }
 
 provider "kubectl" {
-  host                   = module.aks.cluster_fqdn
-  client_certificate     = base64decode(module.aks.client_certificate)
-  client_key             = base64decode(module.aks.client_key)
-  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-  load_config_file       = false
+  config_path = "~/.kube/config"
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.aks.cluster_fqdn
-    client_certificate     = base64decode(module.aks.client_certificate)
-    client_key             = base64decode(module.aks.client_key)
-    cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
-
-  }
+    config_path = "~/.kube/config"
 }
-
+}
 resource "azurerm_resource_group" "aks" {
   name     = "aks-rg"
-  location = "West US"
-  }
-
-module "network" {
-  source              = "Azure/network/azurerm"
-  resource_group_name = azurerm_resource_group.aks.name
-  vnet_name           = var.aks_virtual_network
-  address_space       = var.aks_vnet_address_space
-
- subnets = [
-    {
-      name : var.default_node_pool_subnet_name
-      address_prefixes : var.default_node_pool_subnet_address_prefix
-      enforce_private_link_endpoint_network_policies : true
-      enforce_private_link_service_network_policies : false
-    }
-   ]
-  use_for_each = true
-  tags = {
-    environment = "dev"
-    costcenter  = "it"
-  }
-
-  depends_on = [azurerm_resource_group.aks]
+  location = "East US"
 }
+
+#creates a vnet/subnet with the ability to use the mapping as shown see ref https://registry.terraform.io/modules/Azure/subnets/azurerm/latest
+module "aks-vnet" {
+  source              = "Azure/subnets/azurerm"
+  version             = "1.0.0"
+  resource_group_name = azurerm_resource_group.aks.name
+  subnets = {
+    subnet0 = {
+      address_prefixes = ["10.52.0.0/24"]
+    }
+  }
+  virtual_network_address_space = ["10.52.0.0/16"]
+  virtual_network_location      = var.region
+  virtual_network_name          = "aks-on-azure-vnet"
+}
+
+module "aks-vnet2" {
+  source              = "Azure/subnets/azurerm"
+  version             = "1.0.0"
+  resource_group_name = azurerm_resource_group.aks.name
+  subnets = {
+    subnet0 = {
+      address_prefixes = ["10.0.0.0/24"]
+    }
+  }
+  virtual_network_address_space = ["10.0.0.0/16"]
+  virtual_network_location      = var.region
+  virtual_network_name          = "aks-on-azure-vnet2"
+}
+
+
