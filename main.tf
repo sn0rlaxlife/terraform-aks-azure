@@ -6,11 +6,11 @@ terraform {
       version = "3.57.0"
     }
     kubectl = {
-      source = "gavinbunney/kubectl"
+      source  = "gavinbunney/kubectl"
       version = "1.14.0"
     }
     helm = {
-      source = "hashicorp/helm"
+      source  = "hashicorp/helm"
       version = "2.10.1"
     }
   }
@@ -48,13 +48,9 @@ module "network" {
   source              = "Azure/network/azurerm"
   resource_group_name = azurerm_resource_group.aks.name
   address_spaces      = ["10.0.0.0/16", "10.2.0.0/16"]
-  subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  subnet_prefixes     = ["10.52.0.0/24", "10.52.1.0/24", "10.52.2.0/24"]
   subnet_names        = ["subnet1", "subnet2", "subnet3"]
-  subnet_service_endpoints = {
-    subnet1 = ["Microsoft.KeyVault", "Microsoft.Sql"]
-    subnet2 = ["Microsoft.Storage"]
-    subnet3 = ["Microsoft.Sql"]
-  }
+
   use_for_each = true
   tags = {
     environment = "dev"

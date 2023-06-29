@@ -27,10 +27,10 @@ module "aks" {
   agents_type                       = "VirtualMachineScaleSets"
   agents_size                       = var.agents_size
 
- ## api_server_authorized_ip_ranges = {
- ##   type                 = string
- ##   authorized_ip_ranges = "0.0.0.0/32"
- ## }
+  ## api_server_authorized_ip_ranges = {
+  ##   type                 = string
+  ##   authorized_ip_ranges = "0.0.0.0/32"
+  ## }
 
 
   agents_labels = {
@@ -43,9 +43,9 @@ module "aks" {
 
   ingress_application_gateway_enabled = false
 
-  network_policy                     = "azure"
-  net_profile_dns_service_ip         = "10.0.0.10"
-  net_profile_service_cidr           = "10.0.0.0/16"
+  network_policy             = "azure"
+  net_profile_dns_service_ip = "10.0.0.10"
+  net_profile_service_cidr   = "10.0.0.0/16"
 
   key_vault_secrets_provider_enabled = true
   secret_rotation_enabled            = true
