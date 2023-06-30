@@ -4,7 +4,7 @@ Azure Iteration of Installation of Istio/Native Security
 <h1> Reference Architecture for Code</h1>
 <img src=/aks-end.png> AKS </img>
 
-Requirements (Cost that will be incurred)
+<p>Requirements (Cost that will be incurred)</p>
 Microsoft Sentinel (Runs on Log Analytics)
 AKS (Node size should be able to support multiple teams) - think of image size
 Defender for Cloud (Containers) - Protection
