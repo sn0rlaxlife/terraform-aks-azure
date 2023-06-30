@@ -7,7 +7,7 @@ Azure Iteration of Installation of Istio/Native Security
 <p>Requirements (Cost that will be incurred)</p>
 <b>Microsoft Sentinel (Runs on Log Analytics)</b>
 
-AKS (Node size should be able to support multiple teams) - think of image size
+<br>AKS (Node size should be able to support multiple teams) - think of image size</br>
 Defender for Cloud (Containers) - Protection
 Azure Key Vault (KMS) - Service would incur costs if left on as well
 
