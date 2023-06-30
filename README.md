@@ -13,11 +13,11 @@ Azure Iteration of Installation of Istio/Native Security
 
 <h2>Getting Started</h2>
 <b>To run the this configuration with Kiosk</b>
-<code>az login #authenticate to your cli</code>
-<code>terraform init</code>
-<code>terraform apply</code>
+<br><code>az login #authenticate to your cli</code></br>
+<br><code>terraform init</code></br>
+<br><code>terraform apply</code></br>
 
 
 
-Open-source tools used for this
+<br><b>Open-source tools used for this</b></br>
 Utilizing Kiosk with the "kubectl" provider on terraform
