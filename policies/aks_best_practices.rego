@@ -1,4 +1,4 @@
-package terraform
+package main
 
 deny[msg] {
     input.kind == "azurerm_kubernetes_cluster"
