@@ -25,14 +25,14 @@ jobs:
       
       - name: Change directories to rego policy
         run: git clone https://github.com/sn0rlaxlife/terraform-aks-azure.git
-        
-      - name: Copy directory
-        uses: MadaraUchiha/copy-action@0.0.1
+      - name: Conftest Action
+        # You may pin to the exact commit or the version.
+        # uses: YubicoLabs/action-conftest@45941ed2fdf1f97fc2d3b4afbeb39cd40a5d8993
+        uses: YubicoLabs/action-conftest@v3
         with:
-          "https://github.com/sn0rlaxlife/terraform-aks-azure.git"
-          source: 
-          "https://github.com/sn0rlaxlife/terraform-aks-azure"
-          target: 
-          $(pwd)/policies
-      - name: Run conftest
-        run: docker run --rm -v $(pwd):/policies openpolicyagent/conftest test aks_best_practices.rego
+        # Files and/or folders for Conftest to test (space delimited)
+          files: 
+            https://github.com/sn0rlaxlife/terraform-aks-azure
+          policy: /policies/aks_best_practices.rego
+          # Files or folder with supplemental test data
+          pull-url: https://github.com/sn0rlaxlife/terraform-aks-azure.git
