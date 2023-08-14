@@ -24,4 +24,4 @@ jobs:
           sudo mv conftest /usr/local/bin
 
       - name: Run conftest
-        run: conftest test --policy aks_best_practices.rego pwd /policies/
+        run: conftest test --policy aks_best_practices.rego
