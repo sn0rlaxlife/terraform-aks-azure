@@ -26,5 +26,13 @@ jobs:
       - name: Change directories to rego policy
         run: git clone https://github.com/sn0rlaxlife/terraform-aks-azure.git
         
+      - name: Copy directory
+        uses: MadaraUchiha/copy-action@0.0.1
+        with:
+          "https://github.com/sn0rlaxlife/terraform-aks-azure.git"
+          source: 
+          "https://github.com/sn0rlaxlife/terraform-aks-azure"
+          target: 
+          $(pwd)/policies
       - name: Run conftest
         run: docker run --rm -v $(pwd):/policies openpolicyagent/conftest test aks_best_practices.rego
