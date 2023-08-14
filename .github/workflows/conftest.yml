@@ -30,5 +30,5 @@ jobs:
         # uses: YubicoLabs/action-conftest@45941ed2fdf1f97fc2d3b4afbeb39cd40a5d8993
         uses: YubicoLabs/action-conftest@v3
         with:
-          files: aks_best_practices.rego
+          files: "/policies/aks_best_practices.rego"
           # Files or folder with supplemental test data
