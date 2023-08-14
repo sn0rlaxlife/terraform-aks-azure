@@ -32,7 +32,6 @@ jobs:
         with:
         # Files and/or folders for Conftest to test (space delimited)
           files: 
-            https://github.com/sn0rlaxlife/terraform-aks-azure
-          policy: /policies/aks_best_practices.rego
+            aks_best_practices.rego
           # Files or folder with supplemental test data
           pull-url: https://github.com/sn0rlaxlife/terraform-aks-azure.git
