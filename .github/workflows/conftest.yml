@@ -30,4 +30,4 @@ jobs:
         run: cd ~/terraform-aks-azure/policies
         
       - name: Run conftest
-        run: conftest test /policies --policy aks_best_practices.rego
+        run: conftest test /policies --policy https://github.com/sn0rlaxlife/terraform-aks-azure/blob/main/policies/aks_best_practices.rego
