@@ -6,3 +6,4 @@
 *creds.sh
 *.sh
 *.tfstate
+*.terraform.tfstate.lock.info
