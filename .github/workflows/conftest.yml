@@ -22,8 +22,8 @@ jobs:
           wget "https://github.com/open-policy-agent/conftest/releases/download/v${LATEST_VERSION}/conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz"
           tar xzf conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin
-
+      - name: Change directories to rego policy
+        run: cd ~/policies
+        
       - name: Run conftest
-        run: |
-        cd policies
-        conftest test . --policy aks_best_practices.rego
+        run: conftest test . --policy aks_best_practices.rego
