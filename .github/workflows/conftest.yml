@@ -27,4 +27,4 @@ jobs:
         run: git clone https://github.com/sn0rlaxlife/terraform-aks-azure.git
         
       - name: Run conftest
-        run: conftest test . --policy https://github.com/sn0rlaxlife/terraform-aks-azure/policies/aks_best_practices.rego
+        run: conftest test --policy https://github.com/sn0rlaxlife/terraform-aks-azure/policies/aks_best_practices.rego
