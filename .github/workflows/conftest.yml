@@ -34,4 +34,3 @@ jobs:
           files: 
             aks_best_practices.rego
           # Files or folder with supplemental test data
-          pull-url: https://github.com/sn0rlaxlife/terraform-aks-azure.git
