@@ -28,5 +28,5 @@ jobs:
         
       - name: Run conftest
         run: |
-          cd https://github.com/sn0rlaxlife/terraform-aks-azure/policies
+          cd /terraform-aks-azure/policies
           conftest test . --policy aks_best_practices.rego
