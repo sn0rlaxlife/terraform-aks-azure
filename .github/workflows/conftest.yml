@@ -26,8 +26,5 @@ jobs:
       - name: Change directories to rego policy
         run: git clone https://github.com/sn0rlaxlife/terraform-aks-azure.git
         
-      - name: move to policies rego
-        run: cd /terraform-aks-azure/policies
-        
       - name: Run conftest
         run: conftest test /policies --policy https://github.com/sn0rlaxlife/terraform-aks-azure/blob/main/policies/aks_best_practices.rego
