@@ -25,3 +25,9 @@ Utilizing Kiosk with the "kubectl" provider on terraform
 <h2>Running Conftest</h2>
 <b>For conftest to work on this configuration use of conversion to json will be needed to crawl the format and select conditions</b>
 
+<pre class="no translate">
+<code>terraform init
+      terraform plan -out=tfplan_2_resource
+      terraform shown -json tfplan_resource | jq '.' > tfplan.json 
+</code>
+</pre>
