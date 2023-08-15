@@ -27,7 +27,7 @@ Utilizing Kiosk with the "kubectl" provider on terraform
 
 <pre class="no translate">
 <code>terraform init
-      terraform plan -out=tfplan_2_resource
-      terraform shown -json tfplan_resource | jq '.' > tfplan.json 
+terraform plan -out=tfplan_2_resource
+terraform shown -json tfplan_resource | jq '.' > tfplan.json 
 </code>
 </pre>
