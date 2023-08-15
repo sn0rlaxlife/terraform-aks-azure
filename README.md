@@ -21,3 +21,7 @@ Azure Iteration of Installation of Istio/Native Security
 
 <br><b>Open-source tools used for this</b></br>
 Utilizing Kiosk with the "kubectl" provider on terraform
+
+<h2>Running Conftest</h2>
+<b>For conftest to work on this configuration use of conversion to json will be needed to crawl the format and select conditions</b>
+
